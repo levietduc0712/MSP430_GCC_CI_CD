@@ -1,0 +1,24 @@
+name: Build and Test
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: vietduc712/msp430-gcc-9.3.1.11:latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Verify GCC installation
+        run: msp430-gcc --version
+
+      - name: Build project
+        run: make
+
+      - name: Run cppcheck
+        run: cppcheck .
+
+      - name: Run tests
+        run: make tests
