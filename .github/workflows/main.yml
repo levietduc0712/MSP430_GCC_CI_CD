@@ -1,4 +1,4 @@
-name: Build and Test
+name: Build and Test MSP430 Project
 
 on: [push]
 
@@ -18,7 +18,7 @@ jobs:
         run: make
 
       - name: Run cppcheck
-        run: cppcheck .
+        run: cppcheck src/
 
       - name: Run tests
         run: make tests
