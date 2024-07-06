@@ -11,8 +11,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # - name: Verify GCC installation
-      #   run: msp430-gcc --version
+      - name: Verify GCC installation
+        run: /dev/tools/msp430-gcc --version
 
       - name: Build project
         run: make
