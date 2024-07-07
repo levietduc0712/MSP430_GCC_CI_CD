@@ -3,7 +3,7 @@ BIN_DIR = ${TOOLS_PATH}/bin
 INCLUDE_DIR = ${TOOLS_PATH}/include
 CC = $(BIN_DIR)/msp430-elf-gcc
 CFLAGS = -I$(INCLUDE_DIR) -mmcu=msp430g2553 -O2
-LDFLAGS = -mmcu=msp430g2553 -T$(INCLUDE_DIR)/msp430g2553.ld
+LDFLAGS = -mmcu=msp430g2553 -T$(TOOLS_DIR)/msp430g2553.ld -T$(INCLUDE_DIR)/msp430g2553_symbols.ld
 
 SRC_DIR = src
 OBJ_DIR = obj
