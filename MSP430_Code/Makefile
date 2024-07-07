@@ -16,14 +16,14 @@ TARGET = $(OUTPUT_DIR)/main.elf
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
-    @mkdir -p $(OUTPUT_DIR)
-    $(CC) $(LDFLAGS) -o $@ $^
+	@mkdir -p $(OUTPUT_DIR)
+	$(CC) $(LDFLAGS) -o $@ $^
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-    @mkdir -p $(OBJ_DIR)
-    $(CC) $(CFLAGS) -c -o $@ $<
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-    rm -rf $(OBJ_DIR) $(OUTPUT_DIR)
+	rm -rf $(OBJ_DIR) $(OUTPUT_DIR)
 
 .PHONY: all clean
