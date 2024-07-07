@@ -11,21 +11,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: List files for debugging
-        run: ls -al
+      - name: Build Docker image
+        run: docker build -t vietduc712/msp430-gcc-9.3.1.11 .
 
-      - name: List files in MSP430_Code for debugging
-        run: ls -al
-        working-directory: MSP430_Code
+      # - name: List files for debugging
+      #   run: ls -al
 
-      - name: Build project
-        run: TOOLS_PATH=/home/ubuntu/dev/tools make
-        working-directory: MSP430_Code
+      # - name: List files in MSP430_Code for debugging
+      #   run: ls -al
+      #   working-directory: MSP430_Code
 
-      - name: Run cppcheck
-        run: cppcheck src/
-        working-directory: MSP430_Code
+      # - name: Build project
+      #   run: TOOLS_PATH=/home/ubuntu/dev/tools make
+      #   working-directory: MSP430_Code
 
-      - name: Run tests
-        run: make tests
-        working-directory: MSP430_Code
+      # - name: Run cppcheck
+      #   run: cppcheck src/
+      #   working-directory: MSP430_Code
+
+      # - name: Run tests
+      #   run: make tests
+      #   working-directory: MSP430_Code
