@@ -6,7 +6,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: vietduc712/msp430-gcc-9.3.1.11:latest
+      image: artfulbytes/msp430-gcc-9.3.1.11:latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -22,9 +22,6 @@ jobs:
           for dir in $(echo $PATH | tr ':' '\n'); do
             ls $dir
           done
-
-      - name: Run docker image
-        run: docker run -it vietduc712/msp430-gcc-9.3.1.11:latest
 
       # - name: List files for debugging
       #   run: ls -al
