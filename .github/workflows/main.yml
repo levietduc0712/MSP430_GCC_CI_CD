@@ -13,6 +13,7 @@ jobs:
 
       - name: List files in HOME directory
         run: ls $HOME
+        shell: sh -e {0}
 
       - name: List files in PATH directories
         run: |
