@@ -5,6 +5,6 @@ void blink_fast(void) {
 
     while (1) {
         P1OUT ^= 0x02; // Toggle P1.1 using exclusive-OR
-        __delay_cycles(50000);
+        __delay_cycles(50000)
     }
 }
