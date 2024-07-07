@@ -11,11 +11,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: List files for debugging
+        run: ls -al
+
+      - name: List files in MSP430_Code for debugging
+        run: ls -al
+        working-directory: MSP430_Code
+
       - name: Build project
         run: make
+        working-directory: MSP430_Code
 
       - name: Run cppcheck
         run: cppcheck src/
+        working-directory: MSP430_Code
 
       - name: Run tests
         run: make tests
+        working-directory: MSP430_Code
