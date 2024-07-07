@@ -6,7 +6,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: artfulbytes/msp430-gcc-9.3.1.11:latest
+      image: vietduc712/msp430-gcc-9.3.1.11:latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
