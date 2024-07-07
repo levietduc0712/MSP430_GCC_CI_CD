@@ -3,7 +3,7 @@ BIN_DIR = ${TOOLS_PATH}/bin
 INCLUDE_DIR = ${TOOLS_PATH}/include
 CC = $(BIN_DIR)/msp430-elf-gcc
 CFLAGS = -I$(INCLUDE_DIR) -mmcu=msp430g2553 -O2
-LDFLAGS = -mmcu=msp430g2553 -T$(TOOLS_DIR)/msp430g2553.ld -T$(INCLUDE_DIR)/msp430g2553_symbols.ld
+LDFLAGS = -mmcu=msp430g2553 -T$(INCLUDE_DIR)/msp430g2553.ld -T$(INCLUDE_DIR)/msp430g2553_symbols.ld
 
 SRC_DIR = src
 OBJ_DIR = obj
@@ -16,14 +16,14 @@ TARGET = $(OUTPUT_DIR)/main.elf
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
-	@mkdir -p $(OUTPUT_DIR)
-	$(CC) $(LDFLAGS) -o $@ $^
+    @mkdir -p $(OUTPUT_DIR)
+    $(CC) $(LDFLAGS) -o $@ $^
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	@mkdir -p $(OBJ_DIR)
-	$(CC) $(CFLAGS) -c -o $@ $<
+    @mkdir -p $(OBJ_DIR)
+    $(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -rf $(OBJ_DIR) $(OUTPUT_DIR)
+    rm -rf $(OBJ_DIR) $(OUTPUT_DIR)
 
 .PHONY: all clean
