@@ -1,4 +1,5 @@
-CC = /home/ubuntu/dev/tools/msp430-gcc
+TOOLS_DIR = ${TOOLS_PATH}
+CC = $(TOOLS_DIR)/msp430-gcc
 CFLAGS = -mmcu=msp430g2553 -O2
 LDFLAGS = -mmcu=msp430g2553
 

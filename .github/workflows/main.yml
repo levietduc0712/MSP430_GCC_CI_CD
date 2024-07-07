@@ -19,7 +19,7 @@ jobs:
         working-directory: MSP430_Code
 
       - name: Build project
-        run: make
+        run: TOOLS_PATH=~/dev/tools make
         working-directory: MSP430_Code
 
       - name: Run cppcheck
