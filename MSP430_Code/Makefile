@@ -4,6 +4,7 @@ INCLUDE_DIR = ${TOOLS_PATH}/include
 CC = $(BIN_DIR)/msp430-elf-gcc
 CFLAGS = -I$(INCLUDE_DIR) -mmcu=msp430g2553 -O2
 LDFLAGS = -mmcu=msp430g2553 -L$(INCLUDE_DIR) -T$(INCLUDE_DIR)/msp430g2553.ld -T$(INCLUDE_DIR)/msp430g2553_symbols.ld
+DEPFLAGS = -MMD -MP
 
 SRC_DIR = src
 OBJ_DIR = obj
@@ -11,6 +12,7 @@ OUTPUT_DIR = bin
 
 SOURCES = $(wildcard $(SRC_DIR)/*.c)
 OBJECTS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SOURCES))
+DEPS = $(OBJECTS:.o=.d)
 TARGET = $(OUTPUT_DIR)/main.elf
 
 all: $(TARGET)
@@ -21,7 +23,9 @@ $(TARGET): $(OBJECTS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(OBJ_DIR)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) $(DEPFLAGS) -c -o $@ $<
+
+-include $(DEPS)
 
 clean:
 	rm -rf $(OBJ_DIR) $(OUTPUT_DIR)
