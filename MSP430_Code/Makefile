@@ -1,5 +1,5 @@
 TOOLS_DIR = ${TOOLS_PATH}
-CC = $(TOOLS_DIR)/msp430-gcc
+CC = $(TOOLS_DIR)/msp430-elf-gcc
 CFLAGS = -mmcu=msp430g2553 -O2
 LDFLAGS = -mmcu=msp430g2553
 

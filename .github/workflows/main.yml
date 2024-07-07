@@ -25,7 +25,7 @@ jobs:
       #   working-directory: MSP430_Code
 
       - name: Build project
-        run: TOOLS_PATH=/home/ubuntu/dev/tools/bin/msp430-elf-gcc make
+        run: TOOLS_PATH=/home/ubuntu/dev/tools/bin make
         working-directory: MSP430_Code
 
       - name: Run cppcheck
