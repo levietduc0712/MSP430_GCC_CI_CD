@@ -11,6 +11,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: List files in HOME directory
+        run: ls $HOME
+
+      - name: List files in PATH directories
+        run: |
+          for dir in $(echo $PATH | tr ':' '\n'); do
+            ls $dir
+          done
+
       # - name: List files for debugging
       #   run: ls -al
 
