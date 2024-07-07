@@ -17,12 +17,6 @@ jobs:
           echo "Files in $HOME:"
           echo "$files"
 
-      - name: List files in PATH directories
-        run: |
-          for dir in $(echo $PATH | tr ':' '\n'); do
-            ls $dir
-          done
-
       # - name: List files for debugging
       #   run: ls -al
 
@@ -30,14 +24,14 @@ jobs:
       #   run: ls -al
       #   working-directory: MSP430_Code
 
-      # - name: Build project
-      #   run: TOOLS_PATH=/home/ubuntu/dev/tools make
-      #   working-directory: MSP430_Code
+      - name: Build project
+        run: TOOLS_PATH=/home/ubuntu/dev/tools make
+        working-directory: MSP430_Code
 
-      # - name: Run cppcheck
-      #   run: cppcheck src/
-      #   working-directory: MSP430_Code
+      - name: Run cppcheck
+        run: cppcheck src/
+        working-directory: MSP430_Code
 
-      # - name: Run tests
-      #   run: make tests
-      #   working-directory: MSP430_Code
+      - name: Run tests
+        run: make tests
+        working-directory: MSP430_Code
