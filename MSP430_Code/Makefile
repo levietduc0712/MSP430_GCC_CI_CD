@@ -1,4 +1,4 @@
-CC = msp430-gcc
+CC = /home/ubuntu/dev/tools/msp430-gcc
 CFLAGS = -mmcu=msp430g2553 -O2
 LDFLAGS = -mmcu=msp430g2553
 
