@@ -13,14 +13,14 @@ TARGET = $(BIN_DIR)/main.elf
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
-    @mkdir -p $(BIN_DIR)
-    $(CC) $(LDFLAGS) -o $@ $^
+	@mkdir -p $(BIN_DIR)
+	$(CC) $(LDFLAGS) -o $@ $^
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-    @mkdir -p $(OBJ_DIR)
-    $(CC) $(CFLAGS) -c -o $@ $<
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-    rm -rf $(OBJ_DIR) $(BIN_DIR)
+	rm -rf $(OBJ_DIR) $(BIN_DIR)
 
 .PHONY: all clean
