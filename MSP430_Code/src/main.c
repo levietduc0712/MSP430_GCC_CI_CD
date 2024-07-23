@@ -19,4 +19,5 @@ int main(void)
         gpio_set(GPIO_PORT_P9, GPIO_PIN7, GPIO_OUT_LOW);
         __delay_cycles(16000000);
     }
+    
 }
