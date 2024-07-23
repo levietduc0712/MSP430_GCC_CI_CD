@@ -14,10 +14,10 @@ int main(void)
     {
         gpio_set(GPIO_PORT_P1, GPIO_PIN0, GPIO_OUT_HIGH);
         gpio_set(GPIO_PORT_P9, GPIO_PIN7, GPIO_OUT_HIGH);
-        __delay_cycles(16000000);
+        delay_ms(1000);
         gpio_set(GPIO_PORT_P1, GPIO_PIN0, GPIO_OUT_LOW);
         gpio_set(GPIO_PORT_P9, GPIO_PIN7, GPIO_OUT_LOW);
-        __delay_cycles(16000000);
+        delay_ms(1000);
     }
 
 }

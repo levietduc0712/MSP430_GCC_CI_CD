@@ -1,5 +1,17 @@
+// Code was written by: Viet Duc
+// This code is the driver for the GPIO module of the MSP430FR5994. 
+// It allows the user to initialize the GPIO port.
+
 #include <gpio.h>
 
+/**
+ * @brief The gpio_init function initializes the GPIO port, pin, direction, and output.
+ * 
+ * @param port Port number
+ * @param pin Pin number
+ * @param dir Input or Output
+ * @param out High or Low
+ */
 void gpio_init(unsigned int port, unsigned int pin, unsigned int dir, unsigned int out)
 {
     switch(port)
@@ -187,6 +199,13 @@ void gpio_init(unsigned int port, unsigned int pin, unsigned int dir, unsigned i
     }
 }
 
+/**
+ * @brief The gpio_set function sets the GPIO port and pin to high or low.
+ * 
+ * @param port Port number
+ * @param pin Pin number
+ * @param out High or Low
+ */
 void gpio_set(unsigned int port, unsigned int pin, unsigned int out) {
     switch(port)
     {
