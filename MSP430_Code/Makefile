@@ -1,33 +1,63 @@
-TOOLS_DIR = ${TOOLS_PATH}
-BIN_DIR = ${TOOLS_PATH}/bin
-INCLUDE_DIR = ${TOOLS_PATH}/include
-CC = $(BIN_DIR)/msp430-elf-gcc
-CFLAGS = -I$(INCLUDE_DIR) -mmcu=msp430g2553 -O2
-LDFLAGS = -mmcu=msp430g2553 -L$(INCLUDE_DIR) -T$(INCLUDE_DIR)/msp430g2553.ld -T$(INCLUDE_DIR)/msp430g2553_symbols.ld
-DEPFLAGS = -MMD -MP
-
-SRC_DIR = src
+# Directories
+MSPGCC_ROOT_DIR = ${TOOLS_PATH}
+MSPGCC_BIN_DIR = $(MSPGCC_ROOT_DIR)/bin
+MSPGCC_INCLUDE_DIR = $(MSPGCC_ROOT_DIR)/include
+LIB_DIRS = $(MSPGCC_INCLUDE_DIR)
 OBJ_DIR = obj
-OUTPUT_DIR = bin
+BIN_DIR = bin
+SOURCE_DIR = src
+SOURCE_DRIVERS_DIR = $(SOURCE_DIR)/drivers
+HEADERS_DIR = include
+HEADERS_DRIVERS_DIR = $(HEADERS_DIR)/drivers
+INCLUDE_DIRS = $(MSPGCC_INCLUDE_DIR) $(HEADERS_DRIVERS_DIR) $(HEADERS_DIR)
 
-SOURCES = $(wildcard $(SRC_DIR)/*.c)
-OBJECTS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SOURCES))
-DEPS = $(OBJECTS:.o=.d)
-TARGET = $(OUTPUT_DIR)/main.elf
+# Define directories and tools
+TI_CSS_DIR = /home/vietduc/ti/ccs1271/ccs/ccs_base/DebugServer
+DEBUG_BIN_DIR = $(TI_CSS_DIR)/bin
+DEBUG_DRIVERS_DIR = $(TI_CSS_DIR)/drivers
+DEBUG = LD_LIBRARY_PATH=$(DEBUG_DRIVERS_DIR) $(DEBUG_BIN_DIR)/mspdebug
 
-all: $(TARGET)
+# Toolchain
+CC = $(MSPGCC_BIN_DIR)/msp430-elf-gcc
+GDB = $(MSPGCC_BIN_DIR)/msp430-elf-gdb
 
-$(TARGET): $(OBJECTS)
-	@mkdir -p $(OUTPUT_DIR)
-	$(CC) $(LDFLAGS) -o $@ $^
+# Target
+TARGET = $(BIN_DIR)/blink
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	@mkdir -p $(OBJ_DIR)
-	$(CC) $(CFLAGS) $(DEPFLAGS) -c -o $@ $<
+# Source files
+SRCS = $(SOURCE_DIR)/blink.c \
+	$(SOURCE_DRIVERS_DIR)/gpio.c \
+	$(SOURCE_DRIVERS_DIR)/clock_init.c
 
--include $(DEPS)
+# Object files
+OBJS = $(addprefix $(OBJ_DIR)/,$(SRCS:.c=.o))
 
+# Flags
+MCU = msp430fr6989
+WFLAGS = -Wall -Wextra -Werror -Wshadow
+CFLAGS = -mmcu=$(MCU) $(WFLAGS) $(addprefix -I,$(INCLUDE_DIRS)) -Og -g
+LDFLAGS = -mmcu=$(MCU) $(addprefix -L,$(LIB_DIRS)) 
+
+# Build
+## Linking
+$(TARGET): $(OBJS)
+	@mkdir -p $(dir $@)
+	$(CC) $(LDFLAGS) $^ -o $@
+
+## Compiling
+$(OBJ_DIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $^ -o $@
+
+## Debug
+debug: $(TARGET)
+	$(GDB) $(TARGET)
+
+## Flash
+flash: $(TARGET)
+	$(DEBUG) tilib "prog $(TARGET)"
+
+# Phony
+.PHONY: clean
 clean:
-	rm -rf $(OBJ_DIR) $(OUTPUT_DIR)
-
-.PHONY: all clean
+	rm -rf $(OBJ_DIR) $(BIN_DIR)
