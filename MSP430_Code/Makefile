@@ -25,7 +25,7 @@ GDB = $(MSPGCC_BIN_DIR)/msp430-elf-gdb
 TARGET = $(BIN_DIR)/blink
 
 # Source files
-SRCS = $(SOURCE_DIR)/blink.c \
+SRCS = $(SOURCE_DIR)/main.c \
 	$(SOURCE_DRIVERS_DIR)/gpio.c \
 	$(SOURCE_DRIVERS_DIR)/clock_init.c
 
