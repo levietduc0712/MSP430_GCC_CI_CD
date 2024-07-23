@@ -17,3 +17,10 @@ void clock_init(void) {
     CSCTL3 = DIVA__1 | DIVS__1 | DIVM__1;                   // Set all dividers
     CSCTL0_H = 0;                                           // Lock CS registers
 }
+
+void delay_ms(unsigned int ms) {
+    while (ms --)
+    {
+        __delay_cycles(16000);                              // 1ms at 16MHz
+    }
+}

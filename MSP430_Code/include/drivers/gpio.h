@@ -1,3 +1,6 @@
+// Code: MSP430FR6989 GPIO Driver
+// By: Viet Duc
+
 #ifndef __MSP430FR6989_GPIO_H__
 #define __MSP430FR6989_GPIO_H__
 
