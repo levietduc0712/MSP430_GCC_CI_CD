@@ -43,6 +43,7 @@ extern "C" {
 // Prototypes
 void gpio_init(unsigned int port, unsigned int pin, unsigned int dir, unsigned int out);
 void gpio_set(unsigned int port, unsigned int pin, unsigned int out);
+void gpio_toggle(unsigned int port, unsigned int pin);
 
 #ifdef __cplusplus
 }

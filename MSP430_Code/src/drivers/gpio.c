@@ -311,3 +311,45 @@ void gpio_set(unsigned int port, unsigned int pin, unsigned int out) {
             break;
     }
 }
+
+/**
+ * @brief The gpio_toggle function toggles the GPIO port and pin.
+ * 
+ * @param port Port number
+ * @param pin Pin number
+ */
+void gpio_toggle(unsigned int port, unsigned int pin) {
+    switch(port)
+    {
+        case GPIO_PORT_P1:
+            P1OUT ^= pin;
+            break;
+        case GPIO_PORT_P2:
+            P2OUT ^= pin;
+            break;
+        case GPIO_PORT_P3:
+            P3OUT ^= pin;
+            break;
+        case GPIO_PORT_P4:
+            P4OUT ^= pin;
+            break;
+        case GPIO_PORT_P5:
+            P5OUT ^= pin;
+            break;
+        case GPIO_PORT_P6:
+            P6OUT ^= pin;
+            break;
+        case GPIO_PORT_P7:
+            P7OUT ^= pin;
+            break;
+        case GPIO_PORT_P8:
+            P8OUT ^= pin;
+            break;
+        case GPIO_PORT_P9:
+            P9OUT ^= pin;
+            break;
+        case GPIO_PORT_P10:
+            P10OUT ^= pin;
+            break;
+    }
+}
