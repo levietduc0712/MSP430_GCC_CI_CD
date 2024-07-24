@@ -24,3 +24,30 @@ void delay_ms(unsigned int ms) {
         __delay_cycles(16000);                              // 1ms at 16MHz
     }
 }
+
+void delay_ms2(unsigned int ms) {
+    while (ms --)
+    {
+        TA0CCTL0 = CCIE;                                    // TACCR0 interrupt enabled
+        TA0CCR0 = 16000 - 1;                                // 1ms at 16MHz
+        TA0CTL = TASSEL__SMCLK | MC__UP;                    // Set clock source is SMCLK, UP mode
+
+        __bis_SR_register(LPM0_bits + GIE);                 // Enter LPM0 w/ interrupt
+        __no_operation();                                   // For debugger
+    }
+}
+
+// Timer0_A0 interrupt service routine
+#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
+#pragma vector = TIMER0_A0_VECTOR
+__interrupt void Timer0_A0_ISR (void)
+#elif defined(__GNUC__)
+void __attribute__ ((interrupt(TIMER0_A0_VECTOR))) Timer0_A0_ISR (void)
+#else
+#error Compiler not supported!
+#endif
+{
+  TA0CL = 0;                                                // Clear the timer
+  TA0CCTL0 &= ~CCIE;                                        // Disable the interrupt
+  __bic_SR_register_on_exit(LPM0_bits);                     // Exit LPM0
+}

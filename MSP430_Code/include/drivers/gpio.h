@@ -4,6 +4,10 @@
 #ifndef __MSP430FR6989_GPIO_H__
 #define __MSP430FR6989_GPIO_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <msp430.h>
 
 // Define the GPIO_PORT for the MSP430FR6989
@@ -40,6 +44,8 @@
 void gpio_init(unsigned int port, unsigned int pin, unsigned int dir, unsigned int out);
 void gpio_set(unsigned int port, unsigned int pin, unsigned int out);
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __MSP430FR6989_GPIO_H__
