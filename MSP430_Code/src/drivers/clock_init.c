@@ -47,7 +47,7 @@ void __attribute__ ((interrupt(TIMER0_A0_VECTOR))) Timer0_A0_ISR (void)
 #error Compiler not supported!
 #endif
 {
-  TA0CL = 0;                                                // Clear the timer
+  TA0CTL = 0;                                                // Clear the timer
   TA0CCTL0 &= ~CCIE;                                        // Disable the interrupt
   __bic_SR_register_on_exit(LPM0_bits);                     // Exit LPM0
 }
