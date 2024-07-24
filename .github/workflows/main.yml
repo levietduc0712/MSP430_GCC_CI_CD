@@ -25,3 +25,7 @@ jobs:
         run: cppcheck src/
         working-directory: MSP430_Code
 
+      - name: Run size check
+        run: make size
+        working-directory: MSP430_Code
+

@@ -20,6 +20,7 @@ DEBUG = LD_LIBRARY_PATH=$(DEBUG_DRIVERS_DIR) $(DEBUG_BIN_DIR)/mspdebug
 # Toolchain
 CC = $(MSPGCC_BIN_DIR)/msp430-elf-gcc
 GDB = $(MSPGCC_BIN_DIR)/msp430-elf-gdb
+SIZE = $(MSPGCC_BIN_DIR)/msp430-elf-size
 
 # Target
 TARGET = $(BIN_DIR)/blink
@@ -52,6 +53,10 @@ $(OBJ_DIR)/%.o: %.c
 ## Debug
 debug: $(TARGET)
 	$(GDB) $(TARGET)
+
+## Size
+size: $(TARGET)
+	$(SIZE) $(TARGET)
 
 ## Flash
 flash: $(TARGET)
