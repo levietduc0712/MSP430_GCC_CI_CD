@@ -26,6 +26,6 @@ jobs:
         working-directory: MSP430_Code
 
       - name: Run size check
-        run: make size
+        run: TOOLS_PATH=/home/ubuntu/dev/tools/msp430-gcc make size
         working-directory: MSP430_Code
 
