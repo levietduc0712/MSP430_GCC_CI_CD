@@ -9,7 +9,8 @@ extern "C" {
 
 void clock_init(void);
 void delay_ms(unsigned int ms);
-void delay_ms2(unsigned int ms);
+void timerA_init(void);
+unsigned long millis();
 
 #ifdef __cplusplus
 }
