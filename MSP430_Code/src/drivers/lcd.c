@@ -1,408 +1,204 @@
-//*****************************************************************************
-//
-// lcd_c.c - Driver for the lcd_c Module.
-//
-//*****************************************************************************
+// Code was written by: Viet Duc
+// This code is used to initialize the LCD 
 
-//*****************************************************************************
-//
-//! \addtogroup lcd_c_api lcd_c
-//! @{
-//
-//*****************************************************************************
-
-#include "hw_memmap.h"
-
-#ifdef __MSP430_HAS_LCD_C__
 #include "lcd.h"
+#include "clock_init.h"
 
-#include <assert.h>
+const int positions[] = {pos1, pos2, pos3, pos4, pos5, pos6, pos7};
 
-//*****************************************************************************
-//
-// Initialization parameter instance
-//
-//*****************************************************************************
-const LCD_C_initParam LCD_C_INIT_PARAM = {
-        LCD_C_CLOCKSOURCE_ACLK,
-        LCD_C_CLOCKDIVIDER_1,
-        LCD_C_CLOCKPRESCALAR_1,
-        LCD_C_STATIC,
-        LCD_C_STANDARD_WAVEFORMS,
-        LCD_C_SEGMENTS_DISABLED
+/**
+ * @brief LCD memory map for numeric digits
+ * 
+ */
+const char digit[10][2] =
+{
+    {0xFC, 0x28},  /* "0" LCD segments a+b+c+d+e+f+k+q */
+    {0x60, 0x20},  /* "1" */
+    {0xDB, 0x00},  /* "2" */
+    {0xF3, 0x00},  /* "3" */
+    {0x67, 0x00},  /* "4" */
+    {0xB7, 0x00},  /* "5" */
+    {0xBF, 0x00},  /* "6" */
+    {0xE4, 0x00},  /* "7" */
+    {0xFF, 0x00},  /* "8" */
+    {0xF7, 0x00}   /* "9" */
 };
 
-static void setLCDFunction(uint16_t baseAddress, uint8_t index, uint16_t value)
+/**
+ * @brief LCD memory map for alphabet characters
+ * 
+ */
+const char alphabetBig[26][2] =
 {
-    switch(index) {
-    case 0:
-        HWREG16(baseAddress + OFS_LCDCPCTL0) |= value;
-        break;
-    case 1:
-        HWREG16(baseAddress + OFS_LCDCPCTL1) |= value;
-        break;
-    case 2:
-        HWREG16(baseAddress + OFS_LCDCPCTL2) |= value;
-        break;
-    case 3:
-#ifdef LCDS48
-        HWREG16(baseAddress + OFS_LCDCPCTL3) |= value;
-#endif //LCDS48
-        break;
-    default: break;
-    }
-}
+    {0xEF, 0x00},  /* "A" LCD segments a+b+c+e+f+g+m */
+    {0xF1, 0x50},  /* "B" */
+    {0x9C, 0x00},  /* "C" */
+    {0xF0, 0x50},  /* "D" */
+    {0x9F, 0x00},  /* "E" */
+    {0x8F, 0x00},  /* "F" */
+    {0xBD, 0x00},  /* "G" */
+    {0x6F, 0x00},  /* "H" */
+    {0x90, 0x50},  /* "I" */
+    {0x78, 0x00},  /* "J" */
+    {0x0E, 0x22},  /* "K" */
+    {0x1C, 0x00},  /* "L" */
+    {0x6C, 0xA0},  /* "M" */
+    {0x6C, 0x82},  /* "N" */
+    {0xFC, 0x00},  /* "O" */
+    {0xCF, 0x00},  /* "P" */
+    {0xFC, 0x02},  /* "Q" */
+    {0xCF, 0x02},  /* "R" */
+    {0xB7, 0x00},  /* "S" */
+    {0x80, 0x50},  /* "T" */
+    {0x7C, 0x00},  /* "U" */
+    {0x0C, 0x28},  /* "V" */
+    {0x6C, 0x0A},  /* "W" */
+    {0x00, 0xAA},  /* "X" */
+    {0x00, 0xB0},  /* "Y" */
+    {0x90, 0x28}   /* "Z" */
+};
 
-void LCD_C_init(uint16_t baseAddress, LCD_C_initParam *initParams)
+/**
+ * @brief Initialize LCD
+ * 
+ */
+void Init_LCD()
 {
-    HWREG16(baseAddress + OFS_LCDCCTL0) &= ~LCDON;
-    HWREG16(baseAddress + OFS_LCDCCTL0) &= ~(LCDMX0 | LCDMX1 | LCDMX2 | LCDSSEL
-         | LCDLP | LCDSON | LCDDIV_31);
+    PJSEL0 = BIT4 | BIT5;                   // For LFXT
 
-    HWREG16(baseAddress + OFS_LCDCCTL0) |= initParams->muxRate;
-    HWREG16(baseAddress + OFS_LCDCCTL0) |= initParams->clockSource;
-    HWREG16(baseAddress + OFS_LCDCCTL0) |= initParams->waveforms;
-    HWREG16(baseAddress + OFS_LCDCCTL0) |= initParams->segments;
-    HWREG16(baseAddress + OFS_LCDCCTL0) |= initParams->clockDivider;
-    HWREG16(baseAddress + OFS_LCDCCTL0) |= initParams->clockPrescalar;
-}
+    // Initialize LCD segments 0 - 21; 26 - 43
+    LCDCPCTL0 = 0xFFFF;
+    LCDCPCTL1 = 0xFC3F;
+    LCDCPCTL2 = 0x0FFF;
 
-void LCD_C_on(uint16_t baseAddress)
-{
-    HWREG16(baseAddress + OFS_LCDCCTL0) |= LCDON;
-}
-
-void LCD_C_off(uint16_t baseAddress)
-{
-    HWREG16(baseAddress + OFS_LCDCCTL0) &= ~LCDON;
-}
-
-void LCD_C_clearInterrupt(uint16_t baseAddress, uint16_t mask)
-{
-    HWREG8(baseAddress + OFS_LCDCCTL1_L) &= ~(mask>>8);
-}
-
-uint16_t LCD_C_getInterruptStatus(uint16_t baseAddress, uint16_t mask)
-{
-    return (HWREG8(baseAddress + OFS_LCDCCTL1_L) & (mask>>8));
-}
-
-void LCD_C_enableInterrupt(uint16_t baseAddress, uint16_t mask)
-{
-    HWREG16(baseAddress + OFS_LCDCCTL1) |= mask;
-}
-
-void LCD_C_disableInterrupt (uint16_t baseAddress, uint16_t mask)
-{
-    HWREG16(baseAddress + OFS_LCDCCTL1) &= ~mask;
-}
-
- void LCD_C_clearMemory(uint16_t baseAddress)
- {
-    HWREG16(baseAddress + OFS_LCDCMEMCTL) |= LCDCLRM;
- }
-
-void LCD_C_clearBlinkingMemory(uint16_t baseAddress)
-{
-   HWREG16(baseAddress + OFS_LCDCMEMCTL) |= LCDCLRBM;
-}
-
-void LCD_C_selectDisplayMemory(uint16_t baseAddress, uint16_t displayMemory)
-{
-    HWREG16(baseAddress + OFS_LCDCMEMCTL) &= ~LCDDISP;
-    HWREG16(baseAddress + OFS_LCDCMEMCTL) |= displayMemory;
-}
-
-void LCD_C_setBlinkingControl (uint16_t baseAddress,
-                          uint8_t clockDivider,
-                          uint8_t clockPrescalar,
-                          uint8_t mode)
-{
-    HWREG16(baseAddress + OFS_LCDCBLKCTL) &= ~(LCDBLKDIV0 | LCDBLKDIV1 | LCDBLKDIV2 |
-                                             LCDBLKPRE0 | LCDBLKPRE1 | LCDBLKPRE2 |
-                                             LCDBLKMOD0 | LCDBLKMOD1
-                                             );
-    HWREG16(baseAddress + OFS_LCDCBLKCTL) |= clockDivider | clockPrescalar | mode;
-}
-
-void LCD_C_enableChargePump(uint16_t baseAddress)
-{
-    HWREG16(baseAddress + OFS_LCDCVCTL) |= LCDCPEN;
-}
-
-void LCD_C_disableChargePump(uint16_t baseAddress)
-{
-    HWREG16(baseAddress + OFS_LCDCVCTL) &= ~LCDCPEN;
-}
-
-void LCD_C_selectBias(uint16_t baseAddress, uint16_t bias)
-{
-    HWREG16(baseAddress + OFS_LCDCCTL0) &= ~LCDON;
-    HWREG16(baseAddress + OFS_LCDCVCTL) &= ~LCD2B;
-
-    HWREG16(baseAddress + OFS_LCDCVCTL) |= bias;
-}
-
-void LCD_C_selectChargePumpReference(uint16_t baseAddress, uint16_t reference)
-{
-    HWREG16(baseAddress + OFS_LCDCCTL0) &= ~LCDON;
-    HWREG16(baseAddress + OFS_LCDCVCTL) &= ~VLCDREF_3;
-
-    HWREG16(baseAddress + OFS_LCDCVCTL) |= reference;
-}
-
-void LCD_C_setVLCDSource(uint16_t baseAddress, uint16_t vlcdSource,
-    uint16_t v2v3v4Source,
-    uint16_t v5Source)
-{
-    HWREG16(baseAddress + OFS_LCDCCTL0) &= ~LCDON;
-    HWREG16(baseAddress + OFS_LCDCVCTL) &= ~VLCDEXT;
-    HWREG16(baseAddress + OFS_LCDCVCTL) &= ~LCDREXT;
-    HWREG16(baseAddress + OFS_LCDCVCTL) &= ~LCDEXTBIAS;
-    HWREG16(baseAddress + OFS_LCDCVCTL) &= ~R03EXT;
-
-    HWREG16(baseAddress + OFS_LCDCVCTL) |= vlcdSource;
-    HWREG16(baseAddress + OFS_LCDCVCTL) |= v2v3v4Source;
-    HWREG16(baseAddress + OFS_LCDCVCTL) |= v5Source;
-}
-
-void LCD_C_setVLCDVoltage(uint16_t baseAddress, uint16_t voltage)
-{
-    HWREG16(baseAddress + OFS_LCDCVCTL) &= ~VLCD_15;
-
-    HWREG16(baseAddress + OFS_LCDCVCTL) |= voltage;
-}
-
-void LCD_C_setPinAsLCDFunction(uint16_t baseAddress, uint8_t pin)
-{
-    HWREG16(baseAddress + OFS_LCDCCTL0) &= ~LCDON;
-
-    uint8_t idx = pin>>4;
-    uint16_t val = 1<<(pin & 0xF);
-
-    setLCDFunction(baseAddress, idx, val);
-}
-
-void LCD_C_setPinAsPortFunction (uint16_t baseAddress, uint8_t pin)
-{
-    HWREG16(baseAddress + OFS_LCDCCTL0) &= ~LCDON;
-
-    uint8_t idx = pin >> 4;
-    uint16_t val = 1 << (pin & 0xF);
-
-    switch(idx) {
-        case 0:
-            HWREG16(baseAddress + OFS_LCDCPCTL0) &= ~val;
-            break;
-        case 1:
-            HWREG16(baseAddress + OFS_LCDCPCTL1) &= ~val;
-            break;
-        case 2:
-            HWREG16(baseAddress + OFS_LCDCPCTL2) &= ~val;
-            break;
-        case 3:
-#ifdef LCDS48
-            HWREG16(baseAddress + OFS_LCDCPCTL3) &= ~val;
-#endif //LCDS48
-            break;
-        default: break;
-    }
-}
-
-void LCD_C_setPinAsLCDFunctionEx(uint16_t baseAddress, uint8_t startPin,
-    uint8_t endPin)
-{
-    uint8_t startIdx = startPin>>4;
-    uint8_t endIdx = endPin>>4;
-    uint8_t startPos = startPin & 0xF;
-    uint8_t endPos = endPin & 0xF;
-    uint16_t val = 0;
-    uint8_t i = 0;
-
-    HWREG16(baseAddress + OFS_LCDCCTL0) &= ~LCDON;
-
-    if (startIdx == endIdx) {
-        val = (0xFFFF>>(15-endPos)) & (0xFFFF<<startPos);
-
-        setLCDFunction(baseAddress, startIdx, val);
-
-    }
-    else {
-        val = 0xFFFF>>(15-endPos);
-        setLCDFunction(baseAddress, endIdx, val);
-
-        for (i=endIdx-1; i>startIdx; i--)
-            setLCDFunction(baseAddress, i, 0xFFFF);
-
-        val = 0xFFFF<<startPos;
-        setLCDFunction(baseAddress, startIdx, val);
-    }
-}
-
-void LCD_C_setMemory(uint16_t baseAddress, uint8_t pin, uint8_t value)
-{
-    uint8_t muxRate = HWREG16(baseAddress + OFS_LCDCCTL0)
-                        & (LCDMX2 | LCDMX1 | LCDMX0);
-
-    // static, 2-mux, 3-mux, 4-mux
-    if (muxRate <= (LCDMX1 | LCDMX0)) {
-        if (pin & 1) {
-            HWREG8(baseAddress + OFS_LCDM1 + pin/2) &= 0x0F;
-            HWREG8(baseAddress + OFS_LCDM1 + pin/2) |= (value & 0xF) << 4;
-        }
-        else {
-            HWREG8(baseAddress + OFS_LCDM1 + pin/2) &= 0xF0;
-            HWREG8(baseAddress + OFS_LCDM1 + pin/2) |= (value & 0xF);
-        }
-    }
-    else {
-        //5-mux, 6-mux, 7-mux, 8-mux
-        HWREG8(baseAddress + OFS_LCDM1 + pin) = value;
-    }
-}
-
-uint8_t LCD_C_getMemory(uint16_t baseAddress, uint8_t pin)
-{
-    uint8_t muxRate = HWREG16(baseAddress + OFS_LCDCCTL0)
-                        & (LCDMX2 | LCDMX1 | LCDMX0);
-
-    // static, 2-mux, 3-mux, 4-mux
-    if(muxRate <= (LCDMX1 | LCDMX0))
+    // Configure LFXT 32kHz crystal
+    CSCTL0_H = CSKEY >> 8;                  // Unlock CS registers
+    CSCTL4 &= ~LFXTOFF;                     // Enable LFXT
+    do
     {
-        if(pin & 1)
+      CSCTL5 &= ~LFXTOFFG;                  // Clear LFXT fault flag
+      SFRIFG1 &= ~OFIFG;
+    } while (SFRIFG1 & OFIFG);              // Test oscillator fault flag
+    CSCTL0_H = 0;                           // Lock CS registers
+
+    // Initialize LCD_C
+    // ACLK, Divider = 1, Pre-divider = 16; 4-pin MUX
+    LCDCCTL0 = LCDDIV__1 | LCDPRE__16 | LCD4MUX | LCDLP;
+
+    // VLCD generated internally,
+    // V2-V4 generated internally, v5 to ground
+    // Set VLCD voltage to 2.60v
+    // Enable charge pump and select internal reference for it
+    LCDCVCTL = VLCD_1 | VLCDREF_0 | LCDCPEN;
+
+    LCDCCPCTL = LCDCPCLKSYNC;               // Clock synchronization enabled
+
+    //Turn LCD on
+    LCDCCTL0 |= LCDON;
+}
+
+/**
+ * @brief Display a character on the LCD
+ * 
+ * @param c Character to display
+ * @param position Position on the LCD to display the character
+ */
+void showChar(char c, int position)
+{
+    if (c == ' ')
+    {
+        // Display space
+        LCDMEM[position] = 0;
+        LCDMEM[position+1] = 0;
+    }
+    else if (c >= '0' && c <= '9')
+    {
+        // Display digit
+        LCDMEM[position] = digit[c-48][0];
+        LCDMEM[position+1] = digit[c-48][1];
+    }
+    else if (c >= 'A' && c <= 'Z')
+    {
+        // Display alphabet
+        LCDMEM[position] = alphabetBig[c-65][0];
+        LCDMEM[position+1] = alphabetBig[c-65][1];
+    }
+    else
+    {
+        // Turn all segments on if character is not a space, digit, or uppercase letter
+        LCDMEM[position] = 0xFF;
+        LCDMEM[position+1] = 0xFF;
+    }
+}
+
+/**
+ * @brief Display a string on the LCD
+ * 
+ * @param str String to display
+ */
+void showString(char* str)
+{
+    if (str == NULL) return;
+
+    int i, offset;
+    int length = strlen(str);
+
+    if (length <= 7)
+    {
+        // Display the string as it is if it's 7 characters or less
+        for (i = 0; i < 7; i++)
         {
-            return (HWREG8(baseAddress + OFS_LCDM1 + pin / 2) >> 4);
-        }
-        else
-        {
-            return (HWREG8(baseAddress + OFS_LCDM1 + pin / 2) & 0xF);
+            if (i < length)
+            {
+                showChar(str[i], positions[i]);
+            }
+            else
+            {
+                showChar(' ', positions[i]);  // Clear the remaining positions
+            }
         }
     }
     else
     {
-        //5-mux, 6-mux, 7-mux, 8-mux
-        return HWREG8(baseAddress + OFS_LCDM1 + pin);
+        // Scroll the string if it's longer than 7 characters
+        for (offset = 0; offset < length; offset++)
+        {
+            for (i = 0; i < 7; i++)
+            {
+                if (offset + i < length)
+                {
+                    showChar(str[offset + i], positions[i]);
+                }
+                else
+                {
+                    showChar(' ', positions[i]);  // Clear the position if there's no character
+                }
+            }
+            delay_ms(500);
+        }
+        clearLCD();
     }
 }
 
-void LCD_C_setMemoryWithoutOverwrite(uint16_t baseAddress, uint8_t pin, uint8_t value)
+/*
+ * Clears memories to all 6 digits on the LCD
+ */
+void clearLCD()
 {
-    uint8_t muxRate = HWREG16(baseAddress + OFS_LCDCCTL0)
-                      & (LCDMX2 | LCDMX1 | LCDMX0);
+    LCDMEM[pos1] = LCDBMEM[pos1] = 0;
+    LCDMEM[pos1+1] = LCDBMEM[pos1+1] = 0;
+    LCDMEM[pos2] = LCDBMEM[pos2] = 0;
+    LCDMEM[pos2+1] = LCDBMEM[pos2+1] = 0;
+    LCDMEM[pos3] = LCDBMEM[pos3] = 0;
+    LCDMEM[pos3+1] = LCDBMEM[pos3+1] = 0;
+    LCDMEM[pos4] = LCDBMEM[pos4] = 0;
+    LCDMEM[pos4+1] = LCDBMEM[pos4+1] = 0;
+    LCDMEM[pos5] = LCDBMEM[pos5] = 0;
+    LCDMEM[pos5+1] = LCDBMEM[pos5+1] = 0;
+    LCDMEM[pos6] = LCDBMEM[pos6] = 0;
+    LCDMEM[pos6+1] = LCDBMEM[pos6+1] = 0;
 
-    value |= LCD_C_getMemory(baseAddress, pin);
-
-    // static, 2-mux, 3-mux, 4-mux
-    if(muxRate <= (LCDMX1 | LCDMX0))
-    {
-        if(pin & 1)
-        {
-            HWREG8(baseAddress + OFS_LCDM1 + pin / 2) &= 0x0F;
-            HWREG8(baseAddress + OFS_LCDM1 + pin / 2) |= (value & 0xF) << 4;
-        }
-        else
-        {
-            HWREG8(baseAddress + OFS_LCDM1 + pin / 2) &= 0xF0;
-            HWREG8(baseAddress + OFS_LCDM1 + pin / 2) |= (value & 0xF);
-        }
-    }
-    else
-    {
-        //5-mux, 6-mux, 7-mux, 8-mux
-        HWREG8(baseAddress + OFS_LCDM1 + pin) = value;
-    }
+    LCDM14 = LCDBM14 = 0x00;
+    LCDM18 = LCDBM18 = 0x00;
+    LCDM3 = LCDBM3 = 0x00;
 }
-
-void LCD_C_setBlinkingMemory(uint16_t baseAddress, uint8_t pin, uint8_t value)
-{
-    uint8_t muxRate = HWREG16(baseAddress + OFS_LCDCCTL0)
-                        & (LCDMX2 | LCDMX1 | LCDMX0);
-
-    // static, 2-mux, 3-mux, 4-mux
-    if (muxRate <= (LCDMX1 | LCDMX0)) {
-        if (pin & 1) {
-            HWREG8(baseAddress + OFS_LCDBM1 + pin/2) &= 0x0F;
-            HWREG8(baseAddress + OFS_LCDBM1 + pin/2) |= (value & 0xF) << 4;
-        }
-        else {
-            HWREG8(baseAddress + OFS_LCDBM1 + pin/2) &= 0xF0;
-            HWREG8(baseAddress + OFS_LCDBM1 + pin/2) |= (value & 0xF);
-        }
-    }
-    else {
-        //5-mux, 6-mux, 7-mux, 8-mux
-        HWREG8(baseAddress + OFS_LCDBM1 + pin) = value;
-    }
-
-}
-
-uint8_t LCD_C_getBlinkingMemory(uint16_t baseAddress, uint8_t pin)
-{
-    uint8_t muxRate = HWREG16(baseAddress + OFS_LCDCCTL0)
-                        & (LCDMX2 | LCDMX1 | LCDMX0);
-
-    // static, 2-mux, 3-mux, 4-mux
-    if(muxRate <= (LCDMX1 | LCDMX0))
-    {
-        if(pin & 1)
-        {
-            return (HWREG8(baseAddress + OFS_LCDBM1 + pin / 2) >> 4);
-        }
-        else
-        {
-            return (HWREG8(baseAddress + OFS_LCDBM1 + pin / 2) & 0xF);
-        }
-    }
-    else
-    {
-        //5-mux, 6-mux, 7-mux, 8-mux
-        return HWREG8(baseAddress + OFS_LCDBM1 + pin);
-    }
-}
-
-void LCD_C_setBlinkingMemoryWithoutOverwrite(uint16_t baseAddress, uint8_t pin, uint8_t value)
-{
-    uint8_t muxRate = HWREG16(baseAddress + OFS_LCDCCTL0)
-                      & (LCDMX2 | LCDMX1 | LCDMX0);
-
-    value |= LCD_C_getBlinkingMemory(baseAddress, pin);
-
-    // static, 2-mux, 3-mux, 4-mux
-    if(muxRate <= (LCDMX1 | LCDMX0))
-    {
-        if(pin & 1)
-        {
-            HWREG8(baseAddress + OFS_LCDBM1 + pin / 2) &= 0x0F;
-            HWREG8(baseAddress + OFS_LCDBM1 + pin / 2) |= (value & 0xF) << 4;
-        }
-        else
-        {
-            HWREG8(baseAddress + OFS_LCDBM1 + pin / 2) &= 0xF0;
-            HWREG8(baseAddress + OFS_LCDBM1 + pin / 2) |= (value & 0xF);
-        }
-    }
-    else
-    {
-        //5-mux, 6-mux, 7-mux, 8-mux
-        HWREG8(baseAddress + OFS_LCDBM1 + pin) = value;
-    }
-}
-
-void LCD_C_configChargePump(uint16_t baseAddress, uint16_t syncToClock,
-    uint16_t functionControl)
-{
-    HWREG16(baseAddress + OFS_LCDCCPCTL) &= ~(LCDCPCLKSYNC);
-    HWREG16(baseAddress + OFS_LCDCCPCTL) &= ~(LCDCPDIS7 | LCDCPDIS6 | LCDCPDIS5
-        | LCDCPDIS4 | LCDCPDIS3 | LCDCPDIS2 | LCDCPDIS1 | LCDCPDIS0);
-
-    HWREG16(baseAddress + OFS_LCDCCPCTL) |= syncToClock | functionControl;
-}
-
-
-#endif
-//*****************************************************************************
-//
-//! Close the doxygen group for lcd_c_api
-//! @}
-//
-//*****************************************************************************
