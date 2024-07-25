@@ -28,7 +28,8 @@ TARGET = $(BIN_DIR)/blink
 # Source files
 SRCS = $(SOURCE_DIR)/main.c \
 	$(SOURCE_DRIVERS_DIR)/gpio.c \
-	$(SOURCE_DRIVERS_DIR)/clock_init.c
+	$(SOURCE_DRIVERS_DIR)/clock_init.c \
+	$(SOURCE_DRIVERS_DIR)/lcd.c
 
 # Object files
 OBJS = $(addprefix $(OBJ_DIR)/,$(SRCS:.c=.o))
