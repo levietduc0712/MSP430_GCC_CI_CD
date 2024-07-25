@@ -22,7 +22,7 @@ extern "C"
 {
 #endif
 
-#include "inc/hw_memmap.h"
+#include "hw_memmap.h"
 //*****************************************************************************
 //
 //! \brief Used in the LCD_C_init() function as the initParams parameter.
