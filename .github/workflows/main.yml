@@ -28,4 +28,10 @@ jobs:
       - name: Run size check
         run: TOOLS_PATH=/home/ubuntu/dev/tools/msp430-gcc make size
         working-directory: MSP430_Code
-
+        
+     # Export binary file as artifact
+      - name: Upload built binary as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: msp430-binary
+          path: MSP430_Code/bin/blink  # Update path to the binary file
